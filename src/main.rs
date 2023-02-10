@@ -1,4 +1,20 @@
+use clap::Parser;
 use serde::{Deserialize, Serialize};
+
+/// CLI tool that can let you to convert currencies without leaving your terminal
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Arguments {
+    /// Amount of input currency
+    #[clap(short, long)]
+    amount: Option<f64>,
+    /// Currency to convert from
+    #[clap(short, short, value_parser)]
+    from: String,
+    /// Currency to convert to
+    #[clap(short, short, value_parser)]
+    to: String,
+}
 
 #[allow(non_snake_case)]
 #[derive(Debug, Serialize, Deserialize)]
@@ -109,6 +125,8 @@ fn calc(amount: f64, from: String, to: String, rates: Rates) -> f64 {
 
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error> {
+    let args = Arguments::parse();
+
     let rates_response: RatesResponse = reqwest::get("https://www.cbr-xml-daily.ru/latest.js")
         .await?
         .json()
@@ -118,7 +136,7 @@ async fn main() -> Result<(), reqwest::Error> {
 
     println!(
         "{}",
-        calc(1f64, "JPY".to_string(), "RUB".to_string(), rates)
+        calc(args.amount.unwrap_or(1f64), args.from, args.to, rates)
     );
 
     Ok(())
