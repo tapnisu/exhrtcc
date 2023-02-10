@@ -70,7 +70,7 @@ struct RatesResponse {
 }
 
 fn parse_by_name(name: String, rates: &Rates) -> f64 {
-    match name.as_str() {
+    match name.to_uppercase().as_str() {
         "RUB" => 1f64,
         "AUD" => rates.AUD,
         "AZN" => rates.AZN,
